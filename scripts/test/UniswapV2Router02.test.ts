@@ -8,8 +8,9 @@ import { BigNumber, Contract, ContractInterface } from 'ethers';
 import fs from 'fs';
 import { getTargetAddress } from '../utils/deployUtils';
 import hre from "hardhat";
+const network = hre.network.name;
 
-describe('UniswapV2Router02 Polygon', () => {
+describe(`UniswapV2Router02 on ${network}`, () => {
   let owner: SignerWithAddress;
   let router: UniswapV2Router02;
   let mkr: Contract;
@@ -26,7 +27,7 @@ describe('UniswapV2Router02 Polygon', () => {
   let factory: Contract;
 
   before(async () => {
-    const network = hre.network.name;
+    
     [owner] = await ethers.getSigners()
 
     const UniswapV2Router02 = await ethers.getContractFactory("UniswapV2Router02")
@@ -54,7 +55,7 @@ describe('UniswapV2Router02 Polygon', () => {
   after(async () => {
   });
 
-  describe('Test UniswapV2Router02 on Polygon', async () => {
+  describe(`Test UniswapV2Router02 on ${network}`, async () => {
     // it.skip('addLiquidity', async () => {
     //   const amountMKR = ethers.utils.parseUnits("100", decimalsMKR)
     //   const amountDAI = ethers.utils.parseUnits("100", decimalsDAI)

@@ -46,9 +46,12 @@ export const addLiquidity = async (
     0,
     0,
     acct.address,
-    10000000000
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice()
+    }
   )
   await tx.wait()
+  console.log(`Added Liquidity`)
 }
 
 export const addLiquidityETH = async (
@@ -58,7 +61,9 @@ export const addLiquidityETH = async (
   amountToken: BigNumber,
   amountETH: BigNumber
 ) => {
-  let tx = await token.connect(acct).approve(router.address, amountToken)
+  let tx = await token.connect(acct).approve(router.address, amountToken, {
+    gasPrice: await ethers.provider.getGasPrice()
+  })
   await tx.wait()
   tx = await router.connect(acct).addLiquidityETH(
     token.address,
@@ -66,8 +71,10 @@ export const addLiquidityETH = async (
     0,
     0,
     acct.address,
-    10000000000,
-    {value: amountETH}
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice(),
+      value: amountETH
+    }
   )
   const receipt = await tx.wait()
   for (const event of receipt.events!) {
@@ -135,7 +142,9 @@ export const swapExactTokensForTokens = async (
     0,
     [tokenIn.address, tokenOut.address],
     acct.address,
-    10000000000
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice()
+    }
   )
   await tx.wait()
 }
@@ -148,14 +157,18 @@ export const swapTokensForExactTokens = async (
   amountOut: BigNumber
 ) => {
   const amountIn = await tokenIn.balanceOf(acct.address);
-  let tx = await tokenIn.connect(acct).approve(router.address, amountIn);
+  let tx = await tokenIn.connect(acct).approve(router.address, amountIn, {
+    gasPrice: await ethers.provider.getGasPrice()
+  });
   await tx.wait();
   tx = await router.connect(acct).swapTokensForExactTokens(
     amountOut,
     ethers.constants.MaxUint256,
     [tokenIn.address, tokenOut.address],
     acct.address,
-    10000000000
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice()
+    }
   );
   const receipt = await tx.wait()
   for (const event of receipt.events!) {
@@ -176,8 +189,10 @@ export const swapExactETHForTokens = async (
     0,
     [weth, token.address],
     acct.address,
-    10000000000,
-    {value: amountIn}
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice(),
+      value: amountIn
+    }
   )
   const receipt = await tx.wait()
   for (const event of receipt.events!) {
@@ -199,8 +214,10 @@ export const swapETHForExactTokens = async (
     amountOut,
     [weth, token.address],
     acct.address,
-    10000000000,
-    {value: amountIn}
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice(),
+      value: amountIn
+    }
   )
   const receipt = await tx.wait()
   for (const event of receipt.events!) {
@@ -217,14 +234,18 @@ export const swapExactTokensForETH = async (
   amountIn: BigNumber,
   weth: string
 ) => {
-  let tx = await tokenIn.connect(acct).approve(router.address, amountIn);
+  let tx = await tokenIn.connect(acct).approve(router.address, amountIn, {
+    gasPrice: await ethers.provider.getGasPrice()
+  });
   await tx.wait();
   tx = await router.connect(acct).swapExactTokensForETH(
     amountIn,
     0,
     [tokenIn.address, weth],
     acct.address,
-    10000000000
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice()
+    }
   );
   const receipt = await tx.wait()
   for (const event of receipt.events!) {
@@ -242,14 +263,18 @@ export const swapTokensForExactETH = async (
   amountOut: BigNumber
 ) => {
   const amountIn = await tokenIn.balanceOf(acct.address);
-  let tx = await tokenIn.connect(acct).approve(router.address, amountIn);
+  let tx = await tokenIn.connect(acct).approve(router.address, amountIn, {
+    gasPrice: await ethers.provider.getGasPrice()
+  });
   await tx.wait();
   tx = await router.connect(acct).swapTokensForExactETH(
     amountOut,
     ethers.constants.MaxUint256,
     [tokenIn.address, weth],
     acct.address,
-    10000000000
+    10000000000, {
+      gasPrice: await ethers.provider.getGasPrice()
+    }
   );
   const receipt = await tx.wait()
   for (const event of receipt.events!) {
@@ -398,11 +423,17 @@ export const mintTestToken = async (
   const token = new Contract(tokenAddress, TestTokenABI, owner);
   const decimals = await token.decimals();
   const amountWei = ethers.utils.parseUnits(amountFormated, decimals);
-  let tx = await token.connect(owner).mint(toAddress, amountWei);
+  let tx = await token.connect(owner).mint(toAddress, amountWei, {
+    gasPrice: await ethers.provider.getGasPrice()
+  });
   await tx.wait();
+  console.log(`Minted`)
   const currBal = await token.balanceOf(toAddress);
   const routerAddr = getTargetAddress('../deployment.json', network, 'UniswapV2Router02');
-  tx = await token.connect(owner).approve(routerAddr, currBal);
+  tx = await token.connect(owner).approve(routerAddr, currBal, {
+    gasPrice: await ethers.provider.getGasPrice()
+  });
   await tx.wait();
+  console.log(`Approved`)
   console.log("Current balance:", currBal.toString());
 }

@@ -101,3 +101,14 @@ export const polygonData = {
   // UniswapV2
   uniswapV2Router02: "0x93bcDc45f7e62f89a8e901DC4A0E2c6C427D9F25"
 }
+
+export const WETH: {
+    [key: string]: string;
+  } = {
+  hardhat: "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+  localhost: "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+  sepolia: "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+  mainnet: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+  polygon: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+  bsc: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+};

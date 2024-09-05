@@ -6,8 +6,8 @@ import fs from 'fs';
 import { Contract } from 'ethers';
 
 // Input token addresses and amounts
-const tokenAAddr = '0x94C7d9644A8C8D8F5131AdF91d64271cF7691358';
-const tokenBAddr = '0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f';
+const tokenAAddr = '0xf0a6576D18398a86084c30650aA8E6D12a3180bc';
+const tokenBAddr = '0x59dfA6edeFe31842439A01aaBD66e68CC92c6430';
 const amountA = '100';
 const amountB = '100';
 

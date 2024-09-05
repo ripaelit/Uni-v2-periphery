@@ -56,9 +56,7 @@
     "verify-ftokens": "npx hardhat run scripts/verify/verifyFTokens.ts",
 
     "pair": "yarn hardhat test scripts/test/TestContract.test.ts",
-    "test-router": "yarn hardhat test scripts/test/UniswapV2Router02.test.ts",
-    "test-router-livenet": "yarn hardhat test scripts/test/livenet/UniswapV2Router02.test.ts",
-    "test-router-testnet": "yarn hardhat test scripts/test/testnet/UniswapV2Router02.test.ts",
+    "test:router": "yarn hardhat test scripts/test/UniswapV2Router02.test.ts",
 
     "verify-mock": "yarn hardhat run scripts/verify/verifyMock.ts --network polygonMumbai",
     "coverage": "yarn build && npx hardhat coverage --temp artifacts --network coverage",
