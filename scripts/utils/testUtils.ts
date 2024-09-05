@@ -1,11 +1,33 @@
 import {expect} from 'chai';
 import {ethers} from 'hardhat';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
-import {UniswapV2Router02, ERC20, MockToken, MockWETH} from '../../typechain';
+import {UniswapV2Router02, ERC20} from '../../typechain';
 import {BigNumber, Contract, ContractInterface} from 'ethers';
 import hre from 'hardhat';
 import fs from 'fs';
 import { getTargetAddress } from './deployUtils';
+
+export const queryAddLiquidity = async (
+  acct: SignerWithAddress,
+  router: UniswapV2Router02,
+  tokenA: Contract,
+  amountA: BigNumber,
+  tokenB: Contract,
+  amountB: BigNumber
+) => {
+  // console.log(`addLiquidity(${acct.address}, ${router.address}, ${tokenA.address}, ${amountA}, ${tokenB.address}, ${amountB})`)
+  const result = await router.connect(acct).callStatic.addLiquidity(
+    tokenA.address,
+    tokenB.address,
+    amountA,
+    amountB,
+    0,
+    0,
+    acct.address,
+    10000000000
+  );
+  return result;
+}
 
 export const addLiquidity = async (
   acct: SignerWithAddress,
@@ -15,11 +37,7 @@ export const addLiquidity = async (
   tokenB: Contract,
   amountB: BigNumber
 ) => {
-  console.log(`addLiquidity(${acct.address}, ${router.address}, ${tokenA.address}, ${amountA}, ${tokenB.address}, ${amountB})`)
-  // let tx = await tokenA.connect(acct).approve(router.address, amountA)
-  // await tx.wait()
-  // tx = await tokenB.connect(acct).approve(router.address, amountB)
-  // await tx.wait()
+  // console.log(`addLiquidity(${acct.address}, ${router.address}, ${tokenA.address}, ${amountA}, ${tokenB.address}, ${amountB})`)
   let tx = await router.connect(acct).addLiquidity(
     tokenA.address,
     tokenB.address,
@@ -30,12 +48,7 @@ export const addLiquidity = async (
     acct.address,
     10000000000
   )
-  const receipt = await tx.wait()
-  for (const event of receipt.events!) {
-    if (event.event == "AddLiquidity") {
-      console.log(`Event ${event.event} with args ${event.args}`)
-    }
-  }
+  await tx.wait()
 }
 
 export const addLiquidityETH = async (
@@ -93,6 +106,23 @@ export const addLiquidityETH = async (
 //   }
 // }
 
+export const querySwapExactTokensForTokens = async (
+  acct: SignerWithAddress,
+  router: UniswapV2Router02,
+  tokenIn: Contract,
+  amountIn: BigNumber,
+  tokenOut: Contract
+) => {
+  const amounts = await router.connect(acct).callStatic.swapExactTokensForTokens(
+    amountIn,
+    0,
+    [tokenIn.address, tokenOut.address],
+    acct.address,
+    10000000000
+  )
+  return amounts;
+}
+
 export const swapExactTokensForTokens = async (
   acct: SignerWithAddress,
   router: UniswapV2Router02,
@@ -100,8 +130,6 @@ export const swapExactTokensForTokens = async (
   amountIn: BigNumber,
   tokenOut: Contract
 ) => {
-  // let tx = await tokenIn.connect(acct).approve(router.address, amountIn)
-  // await tx.wait()
   let tx = await router.connect(acct).swapExactTokensForTokens(
     amountIn,
     0,
@@ -109,12 +137,7 @@ export const swapExactTokensForTokens = async (
     acct.address,
     10000000000
   )
-  const receipt = await tx.wait()
-  for (const event of receipt.events!) {
-    if (event.event == "Swap") {
-      console.log(`Event ${event.event} with args ${event.args}`)
-    }
-  }
+  await tx.wait()
 }
 
 export const swapTokensForExactTokens = async (
@@ -270,20 +293,78 @@ export const parseUnits = (value:number, decimals:number) => {
 //   return [amountInA, amountInB, liquidity]
 // }
 
+export const poolInfo = async (
+  context: string,
+  factory: Contract,
+  tokenInAddr: string,
+  tokenOutAddr: string
+) => {
+  let [owner] = await ethers.getSigners();
+  const tokenIn = await ethers.getContractAt('ERC20', tokenInAddr, owner);
+  const tokenInName = await tokenIn.name();
+  const tokenInDecimals = await tokenIn.decimals();
+  const tokenOut = await ethers.getContractAt('ERC20', tokenOutAddr, owner);
+  const tokenOutName = await tokenOut.name();
+  const tokenOutDecimals = await tokenOut.decimals();
+
+  let json = JSON.parse(fs.readFileSync(`abi/UniswapV2Pair.json`, 'utf-8'));
+  let UniswapV2PairABI = json.abi;
+  const pairAddr = await factory.getPair(tokenInAddr, tokenOutAddr);
+  const pair = new Contract(pairAddr, UniswapV2PairABI, owner)
+  const reserves = await pair.getReserves();
+  const token0Addr = await pair.token0();
+  const token1Addr = await pair.token1();
+  let tokenInAmount;
+  let tokenOutAmount;
+  if (tokenInAddr == token0Addr && tokenOutAddr == token1Addr) {
+    tokenInAmount = Number(ethers.utils.formatUnits(reserves[0], tokenInDecimals)).toFixed(3);
+    tokenOutAmount = Number(ethers.utils.formatUnits(reserves[1], tokenOutDecimals)).toFixed(3);
+  } else if (tokenInAddr == token1Addr && tokenOutAddr == token0Addr) {
+    tokenInAmount = Number(ethers.utils.formatUnits(reserves[1], tokenInDecimals)).toFixed(3);
+    tokenOutAmount = Number(ethers.utils.formatUnits(reserves[0], tokenOutDecimals)).toFixed(3);
+  }
+  
+  let message: string = `\n        ${context}\n`;
+  message = message + "        ------------------------\n";
+  message = message + "        tkn names: " + tokenInName + ', ' + tokenOutName + "\n";
+  message = message + "        tkn balances: " + tokenInAmount + ', ' + tokenOutAmount + "\n";
+  message =
+    message + "        tkn addresses: " + tokenInAddr + tokenOutAddr + "\n";
+  message = message + "        ------------------------\n";
+  console.log(message);
+}
+
 export const logEstimatedSwap = async (
   router: UniswapV2Router02,
-  tokenIn: string,
+  tokenInAddr: string,
   amountIn: BigNumber,
-  tokenOut: string,
+  tokenOutAddr: string,
   amountOut: BigNumber,
 ) => {
+  let [owner] = await ethers.getSigners();
+  const tokenIn = await ethers.getContractAt('ERC20', tokenInAddr, owner);
+  const tokenInName = await tokenIn.name();
+  const tokenInDecimals = await tokenIn.decimals();
+  const tokenOut = await ethers.getContractAt('ERC20', tokenOutAddr, owner);
+  const tokenOutName = await tokenOut.name();
+  const tokenOutDecimals = await tokenOut.decimals();
+  let amounts:any[] = [];
   if (amountIn.eq(0) && amountOut.gt(0)) {
-    const amounts = await router.getAmountsIn(amountOut, [tokenIn, tokenOut])
-    console.log("Estimated swap:", tokenIn, tokenOut, amounts[0].toString(), amounts[1].toString())
+    amounts = await router.getAmountsIn(amountOut, [tokenInAddr, tokenOutAddr])
+    // console.log("Estimated swap:", tokenInAddr, tokenOutAddr, amounts[0].toString(), amounts[1].toString())
   } else if (amountIn.gt(0) && amountOut.eq(0)) {
-    const amounts = await router.getAmountsOut(amountIn, [tokenIn, tokenOut])
-    console.log("Estimated swap:", tokenIn, tokenOut, amounts[0].toString(), amounts[1].toString())
+    amounts = await router.getAmountsOut(amountIn, [tokenInAddr, tokenOutAddr])
+    // console.log("Estimated swap:", tokenInAddr, tokenOutAddr, amounts[0].toString(), amounts[1].toString())
   }
+  // console.log({amounts}, {tokenInDecimals}, {tokenOutDecimals})
+  let amountsFormated:string[] = [];
+  amountsFormated[0] = Number(ethers.utils.formatUnits(amounts[0], tokenInDecimals)).toFixed(3);
+  amountsFormated[1] = Number(ethers.utils.formatUnits(amounts[1], tokenOutDecimals)).toFixed(3);
+  // console.log({amountsFormated})
+  let message: string = `\n        Query swap\n`;
+  message = message + "        ------------------------\n";
+  message = message + `        ${tokenInName} ${amountsFormated[0].toString()} ===> ${tokenOutName} ${amountsFormated[1].toString()}\n`;
+  console.log(message);
 }
 
 export const logEstimatedUniV2Swap = async (
@@ -323,7 +404,9 @@ export const mintTestToken = async (
   const amountWei = ethers.utils.parseUnits(amountFormated, decimals);
   let tx = await token.connect(owner).mint(toAddress, amountWei);
   await tx.wait();
-  tx = await token.connect(owner).approve(getTargetAddress('../deployment.json', network, 'UniswapV2Router02'), amountWei);
+  const currBal = await token.balanceOf(toAddress);
+  const routerAddr = getTargetAddress('../deployment.json', network, 'UniswapV2Router02');
+  tx = await token.connect(owner).approve(routerAddr, currBal);
   await tx.wait();
-  console.log("Current balance:", (await token.balanceOf(toAddress)).toString());
+  console.log("Current balance:", currBal.toString());
 }

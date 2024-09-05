@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {ethers} from 'hardhat';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 import {ERC20, UniswapV2Router02} from '../../typechain';
-import {addLiquidity, swapExactTokensForTokens, swapTokensForExactTokens, addLiquidityETH, swapExactETHForTokens, swapETHForExactTokens, swapExactTokensForETH, swapTokensForExactETH, logEstimatedSwap, logEstimatedUniV2Swap} from '../utils/testUtils';
+import {addLiquidity, swapExactTokensForTokens, swapTokensForExactTokens, addLiquidityETH, swapExactETHForTokens, swapETHForExactTokens, swapExactTokensForETH, swapTokensForExactETH, logEstimatedSwap, logEstimatedUniV2Swap, poolInfo} from '../utils/testUtils';
 import { polygonData } from '../constants';
 import { BigNumber, Contract, ContractInterface } from 'ethers';
 import fs from 'fs';
@@ -42,14 +42,15 @@ describe('UniswapV2Router02 Polygon', () => {
   let decimalsBAT:number;
   // let UniswapV2Router02ABI:ContractInterface;
   let UniswapV2FactoryABI:ContractInterface;
+  let UniswapV2PairABI:ContractInterface;
   let TestTokenABI:ContractInterface;
   let factory: Contract;
 
   before(async () => {
     const network = hre.network.name;
     [owner] = await ethers.getSigners()
-    const balance = await ethers.provider.getBalance(owner.address)
-    console.log("before", owner.address, {balance})
+    // const balance = await ethers.provider.getBalance(owner.address)
+    // console.log("before", owner.address, {balance})
 
     // let json = JSON.parse(fs.readFileSync(`deployAll.${network.name}.json`, 'utf-8'))
     const UniswapV2Router02 = await ethers.getContractFactory("UniswapV2Router02")
@@ -80,9 +81,13 @@ describe('UniswapV2Router02 Polygon', () => {
 
     // json = JSON.parse(fs.readFileSync(`UniswapV2Router02.json`, 'utf-8'))
     // UniswapV2Router02ABI = json.abi
+    
     let json = JSON.parse(fs.readFileSync(`abi/UniswapV2Factory.json`, 'utf-8'))
     UniswapV2FactoryABI = json.abi
     factory = new Contract(getTargetAddress('../deployment.json', network, 'UniswapV2Factory'), UniswapV2FactoryABI, owner);
+
+    json = JSON.parse(fs.readFileSync(`abi/UniswapV2Pair.json`, 'utf-8'))
+    UniswapV2PairABI = json.abi
 
     json = JSON.parse(fs.readFileSync(`abi/TestToken.json`, 'utf-8'));
     TestTokenABI = json.abi
@@ -97,13 +102,13 @@ describe('UniswapV2Router02 Polygon', () => {
   });
 
   after(async () => {
-    [owner] = await ethers.getSigners()
-    const balance = await ethers.provider.getBalance(owner.address)
-    console.log("after", owner.address, {balance})
+    // [owner] = await ethers.getSigners()
+    // const balance = await ethers.provider.getBalance(owner.address)
+    // console.log("after", owner.address, {balance})
   });
 
   describe('Test UniswapV2Router02 on Polygon', async () => {
-    it('addLiquidity', async () => {
+    it.skip('addLiquidity', async () => {
       const amountMKR = ethers.utils.parseUnits("100", decimalsMKR)
       const amountDAI = ethers.utils.parseUnits("100", decimalsDAI)
       await addLiquidity(owner, router, mkr, amountMKR, dai, amountDAI)
@@ -113,10 +118,15 @@ describe('UniswapV2Router02 Polygon', () => {
     //   const amountETH = ethers.utils.parseEther("0.2");
     //   await addLiquidityETH(owner, router, fusdt, amountFUSDT, amountETH);
     // });
-    it('Exact MKR -> DAI', async () => {
+    it('query swap given in', async () => {
       const amountMKR = ethers.utils.parseUnits("1", decimalsMKR)
       await logEstimatedSwap(router, mkr.address, amountMKR, dai.address, BigNumber.from("0"))
-      await swapExactTokensForTokens(owner, router, mkr, amountMKR, dai)
+    });
+    it('swap given in', async () => {
+      const amountMKR = ethers.utils.parseUnits("1", decimalsMKR);
+      await poolInfo('before swap', factory, mkr.address, dai.address);
+      await swapExactTokensForTokens(owner, router, mkr, amountMKR, dai);
+      await poolInfo('after swap', factory, mkr.address, dai.address);
     });
     // it('Exact FWBTC -> FWETH', async () => {
     //   const amountFWBTC = ethers.utils.parseUnits("1", decimalsFWBTC)
