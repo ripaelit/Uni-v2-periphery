@@ -119,11 +119,11 @@ describe('UniswapV2Router02 Polygon', () => {
     //   await addLiquidityETH(owner, router, fusdt, amountFUSDT, amountETH);
     // });
     it('query swap given in', async () => {
-      const amountMKR = ethers.utils.parseUnits("1", decimalsMKR)
+      const amountMKR = ethers.utils.parseUnits("0.1", decimalsMKR)
       await logEstimatedSwap(router, mkr.address, amountMKR, dai.address, BigNumber.from("0"))
     });
     it('swap given in', async () => {
-      const amountMKR = ethers.utils.parseUnits("1", decimalsMKR);
+      const amountMKR = ethers.utils.parseUnits("0.1", decimalsMKR);
       await poolInfo('before swap', factory, mkr.address, dai.address);
       await swapExactTokensForTokens(owner, router, mkr, amountMKR, dai);
       await poolInfo('after swap', factory, mkr.address, dai.address);

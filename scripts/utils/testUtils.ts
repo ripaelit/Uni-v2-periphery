@@ -329,7 +329,7 @@ export const poolInfo = async (
   message = message + "        tkn names: " + tokenInName + ', ' + tokenOutName + "\n";
   message = message + "        tkn balances: " + tokenInAmount + ', ' + tokenOutAmount + "\n";
   message =
-    message + "        tkn addresses: " + tokenInAddr + tokenOutAddr + "\n";
+    message + "        tkn addresses: " + tokenInAddr + ', ' + tokenOutAddr + "\n";
   message = message + "        ------------------------\n";
   console.log(message);
 }
@@ -351,16 +351,12 @@ export const logEstimatedSwap = async (
   let amounts:any[] = [];
   if (amountIn.eq(0) && amountOut.gt(0)) {
     amounts = await router.getAmountsIn(amountOut, [tokenInAddr, tokenOutAddr])
-    // console.log("Estimated swap:", tokenInAddr, tokenOutAddr, amounts[0].toString(), amounts[1].toString())
   } else if (amountIn.gt(0) && amountOut.eq(0)) {
     amounts = await router.getAmountsOut(amountIn, [tokenInAddr, tokenOutAddr])
-    // console.log("Estimated swap:", tokenInAddr, tokenOutAddr, amounts[0].toString(), amounts[1].toString())
   }
-  // console.log({amounts}, {tokenInDecimals}, {tokenOutDecimals})
   let amountsFormated:string[] = [];
   amountsFormated[0] = Number(ethers.utils.formatUnits(amounts[0], tokenInDecimals)).toFixed(3);
   amountsFormated[1] = Number(ethers.utils.formatUnits(amounts[1], tokenOutDecimals)).toFixed(3);
-  // console.log({amountsFormated})
   let message: string = `\n        Query swap\n`;
   message = message + "        ------------------------\n";
   message = message + `        ${tokenInName} ${amountsFormated[0].toString()} ===> ${tokenOutName} ${amountsFormated[1].toString()}\n`;
