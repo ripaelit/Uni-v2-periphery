@@ -51,6 +51,7 @@
     "deploy": "npx hardhat run scripts/deploy/deployAll.ts",
     "verify": "npx hardhat run scripts/verify/verifyAll.ts",
     "mint": "npx hardhat run scripts/deploy/mint.ts",
+    "addLiquidity": "npx hardhat run scripts/deploy/addLiquidity.ts",
     "deploy-ftokens": "npx hardhat run scripts/deploy/deployFTokens.ts",
     "verify-ftokens": "npx hardhat run scripts/verify/verifyFTokens.ts",
 
