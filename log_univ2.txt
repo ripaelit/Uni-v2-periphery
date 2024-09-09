@@ -1,0 +1,40 @@
+2024.9.1 16:19:23 - polygon - queryTrade
+        sender: 0x5B9Ecd030f9e8e02c7c7c82A213a3f5b66480a10
+        recipient: 0x5B9Ecd030f9e8e02c7c7c82A213a3f5b66480a10
+        assetIn: 0x94C7d9644A8C8D8F5131AdF91d64271cF7691358
+        amountIn: 0.1
+        assetOut: 0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f
+        amountOut: 0
+        path: 0x94C7d9644A8C8D8F5131AdF91d64271cF7691358->0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f
+2024.9.1 16:19:25 - polygon - Success
+        amountInQueried: 0.1
+        amountOutQueried: 0.094437002996289673
+------------------------------------------------------------
+
+2024.9.1 16:19:25 - polygon - queryBalance
+        context: Before Trade
+        userAddr: 0x5B9Ecd030f9e8e02c7c7c82A213a3f5b66480a10
+        assets: 0x94C7d9644A8C8D8F5131AdF91d64271cF7691358,0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f
+2024.9.1 16:19:29 - polygon - Success
+        token balances: 39294.0, 39331.786685579311459438
+------------------------------------------------------------
+
+2024.9.1 16:19:29 - polygon - executeTrade
+        sender: 0x5B9Ecd030f9e8e02c7c7c82A213a3f5b66480a10
+        recipient: 0x5B9Ecd030f9e8e02c7c7c82A213a3f5b66480a10
+        assetIn: 0x94C7d9644A8C8D8F5131AdF91d64271cF7691358
+        amountIn: 0.1
+        assetOut: 0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f
+        amountOut: 0
+        path: 0x94C7d9644A8C8D8F5131AdF91d64271cF7691358->0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f
+2024.9.1 16:19:40 - polygon - Success
+------------------------------------------------------------
+
+2024.9.1 16:19:40 - polygon - queryBalance
+        context: After Trade
+        userAddr: 0x5B9Ecd030f9e8e02c7c7c82A213a3f5b66480a10
+        assets: 0x94C7d9644A8C8D8F5131AdF91d64271cF7691358,0x6fcd44e2200DfA9eC5546d95965DC59f5DD0553f
+2024.9.1 16:19:44 - polygon - Success
+        token balances: 39293.9, 39331.881122582307749111
+------------------------------------------------------------
+

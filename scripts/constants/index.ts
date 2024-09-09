@@ -112,3 +112,11 @@ export const WETH: {
   polygon: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
   bsc: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
 };
+
+export const ERC20_ABI = [
+  'function name() view returns (string memory)',
+  'function symbol() view returns (string memory)',
+  'function decimals() view returns (uint8)',
+  'function balanceOf(address owner) view returns (uint256)',
+  'function transfer(address to, uint256 amount) returns (bool)',
+];
